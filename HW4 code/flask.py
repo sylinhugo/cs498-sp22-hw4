@@ -40,30 +40,25 @@ def index():
     return jsonify(success=True)
 
 
-@app.route("/results", methods=["GET"])
+@app.route("/results", methods=["POST"])
 def get_results():
-    params = request.args.get("term")
+    print("---------- /results ----------")
+    params = json.loads(request.data)
+    print(params)
+    params = params["term"]
+    print(params)
+
     query = "SELECT clicks FROM searchlog where term="
     query += "'" + params + "'"
 
     conn = hive.Connection(host="localhost", port=10000, username="hugo051697")
     cursor = conn.cursor()
-    # cursor.execute("SELECT clicks FROM searchlog where term=\'‘Portland Degrees’\'")
     cursor.execute(query)
-
-    # for result in cursor.fetchall():
-    #     print(result)
-    #     print(type(result))
-    #     print(list(result))
-    #     tmp = list(result)
-    #     print(tmp[0])
 
     res = cursor.fetchall()
     res = list(res)
     res = res[0]
     res_str = "".join(res)
-    print(type(res_str))
-    print(res_str)
 
     res_str = res_str[1:-1].split(",")
     print(type(res_str))
@@ -75,24 +70,30 @@ def get_results():
         key = key[1:-1]
         tmp_dict[key] = int(val)
 
-    print(tmp_dict.items())
-    print("#####")
     clean_res = {"results": json.dumps(tmp_dict)}
+    tmp = clean_res["results"]
+    tmp = tmp.replace('"', "'")
+    print(tmp)
+
+    clean_res["results"] = tmp
     print(clean_res)
 
     return clean_res
-    # return jsonify(clean_res)
 
 
-@app.route("/trends", methods=["GET"])
+@app.route("/trends", methods=["POST"])
 def get_trends():
-    params = request.args.get("term")
+    print("---------- /trends ----------")
+    params = json.loads(request.data)
+    print(params)
+    params = params["term"]
+    print(params)
+
     query = "SELECT clicks FROM searchlog where term="
     query += "'" + params + "'"
 
     conn = hive.Connection(host="localhost", port=10000, username="hugo051697")
     cursor = conn.cursor()
-    # cursor.execute("SELECT clicks FROM searchlog where term=\'‘Portland Degrees’\'")
     cursor.execute(query)
     res = cursor.fetchall()
 
@@ -110,19 +111,25 @@ def get_trends():
         total += int(val)
 
     clean_res = {"clicks": total}
+    print(clean_res)
 
     return jsonify(clean_res)
 
 
-@app.route("/popularity", methods=["GET"])
+@app.route("/popularity", methods=["POST"])
 def get_popularity():
-    params = request.args.get("url")
+    print("---------- /popularity ----------")
+    params = json.loads(request.data)
+    print(params)
+    params = params["url"]
+    print(params)
+
     terms = [
-        "‘Portland’",
-        "‘Portland University’",
-        "‘Portland Computer’",
-        "‘Portland Vikings’",
-        "‘Portland Degrees’",
+        "Portland",
+        "Portland University",
+        "Portland Computer",
+        "Portland Vikings",
+        "Portland Degrees",
     ]
     temp = []  # a list of list
 
@@ -135,19 +142,25 @@ def get_popularity():
     res = aggregate_count(params, temp)
 
     final_res = {"clicks": res}
+    print(final_res)
+
     return jsonify(final_res)
 
 
-@app.route("/getBestTerms", methods=["GET"])
+@app.route("/getBestTerms", methods=["POST"])
 def get_best_terms():
-    params = request.args.get("website")
+    print("---------- /getBestTerms ----------")
+    params = json.loads(request.data)
+    print(params)
+    params = params["website"]
+    print(params)
 
     terms = [
-        "‘Portland’",
-        "‘Portland University’",
-        "‘Portland Computer’",
-        "‘Portland Vikings’",
-        "‘Portland Degrees’",
+        "Portland",
+        "Portland University",
+        "Portland Computer",
+        "Portland Vikings",
+        "Portland Degrees",
     ]
     temp = []  # a list of list
     res = []
@@ -174,6 +187,7 @@ def get_best_terms():
             res.append(terms[j])
 
     final_res = {"best_terms": res}
+    print(final_res)
 
     return jsonify(final_res)
 
