@@ -1,0 +1,4 @@
+pip install sasl
+pip install thrift
+pip install thrift-sasl
+pip install PyHive
